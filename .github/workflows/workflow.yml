@@ -1,11 +1,10 @@
 name: CI/CD for PetClient in Azure Web App
 
-# → Running the workflow each time we make a push or we get a pull request
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   continuous-integration:
@@ -13,17 +12,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+
       # → Setting up the environment with JDK 11
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Set up Java version
+        uses: actions/setup-java@v1
         with:
           java-version: '11'
-          distribution: 'adopt'
 
       # → Building the .jar of the application
-      - name: Build with Maven Wrapper
-        run: ./mvnw -B package
+      - name: Build with Maven
+        run: mvn clean install
 
       # → Uploading the artifact that we just built
       - name: Upload artifact for deployment job
@@ -52,7 +50,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'techtestpetclinic'
+          app-name: 'petclientapp'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D9E34B44CE294DA1BA694EE92E33DFD8 }}
           package: '*.jar'
